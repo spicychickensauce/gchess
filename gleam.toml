@@ -7,8 +7,6 @@ repository = { type = "github", user = "byusti", repo = "gchess" }
 
 [dependencies]
 gleam_stdlib = "~> 0.34"
-gleam_otp = "~> 0.6"
-gleam_erlang = "~> 0.22"
 
 [dev-dependencies]
 gleeunit = "~> 1.0.2"
