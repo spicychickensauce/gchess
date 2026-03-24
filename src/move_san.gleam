@@ -1,7 +1,6 @@
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
-import gleam/string_builder
 import piece.{type Kind}
 import position.{type File, type Position, type Rank}
 
@@ -45,11 +44,13 @@ pub type CheckOrCheckMate {
 pub fn from_string(san: String) -> Result(MoveSan, ErrorSan) {
   case string.to_graphemes(san) {
     [] -> panic as "Cannot parse empty string."
-    [piece_letter, ..rest] if piece_letter == "K"
+    [piece_letter, ..rest]
+      if piece_letter == "K"
       || piece_letter == "Q"
       || piece_letter == "R"
       || piece_letter == "B"
-      || piece_letter == "N" -> {
+      || piece_letter == "N"
+    -> {
       let check_or_checkmate = case list.last(rest) {
         Ok("+") -> Some(Check)
         Ok("#") -> Some(CheckMate)
@@ -314,26 +315,19 @@ pub fn from_string(san: String) -> Result(MoveSan, ErrorSan) {
         _ -> Error(InvalidCastleString)
       }
     }
-    [pawn_move_first_grapheme, ..rest] if pawn_move_first_grapheme == "a"
+    [pawn_move_first_grapheme, ..rest]
+      if pawn_move_first_grapheme == "a"
       || pawn_move_first_grapheme == "b"
       || pawn_move_first_grapheme == "c"
       || pawn_move_first_grapheme == "d"
       || pawn_move_first_grapheme == "e"
       || pawn_move_first_grapheme == "f"
       || pawn_move_first_grapheme == "g"
-      || pawn_move_first_grapheme == "h" -> {
-      let is_en_passant =
-        string.contains(
-          string_builder.to_string(string_builder.from_strings(rest)),
-          "e.p.",
-        )
+      || pawn_move_first_grapheme == "h"
+    -> {
+      let is_en_passant = string.contains(string.join(rest, ""), "e.p.")
 
-      let rest =
-        string.replace(
-          string_builder.to_string(string_builder.from_strings(rest)),
-          "e.p.",
-          "",
-        )
+      let rest = string.replace(string.join(rest, ""), "e.p.", "")
 
       let rest = string.trim(rest)
 

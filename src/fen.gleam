@@ -124,25 +124,25 @@ fn board_to_fen_string(board: BoardBB) -> String {
           case last_char {
             Error(Nil) | Ok("/") -> string.append(acc, "1")
             Ok("1") -> {
-              string.append(string.drop_right(acc, 1), "2")
+              string.append(string.drop_end(acc, 1), "2")
             }
             Ok("2") -> {
-              string.append(string.drop_right(acc, 1), "3")
+              string.append(string.drop_end(acc, 1), "3")
             }
             Ok("3") -> {
-              string.append(string.drop_right(acc, 1), "4")
+              string.append(string.drop_end(acc, 1), "4")
             }
             Ok("4") -> {
-              string.append(string.drop_right(acc, 1), "5")
+              string.append(string.drop_end(acc, 1), "5")
             }
             Ok("5") -> {
-              string.append(string.drop_right(acc, 1), "6")
+              string.append(string.drop_end(acc, 1), "6")
             }
             Ok("6") -> {
-              string.append(string.drop_right(acc, 1), "7")
+              string.append(string.drop_end(acc, 1), "7")
             }
             Ok("7") -> {
-              string.append(string.drop_right(acc, 1), "8")
+              string.append(string.drop_end(acc, 1), "8")
             }
             Ok("8") -> panic as "Unable to encode BoardBB to FEN string"
             Ok(_) -> {
@@ -297,7 +297,7 @@ pub fn from_string(fen: String) -> Fen {
 
 // This function parses the board part of the FEN string
 pub fn parse_board(board_string: String) -> BoardBB {
-  // in the context of this function, rank means a an entire row of the board 
+  // in the context of this function, rank means a an entire row of the board
   // represented as a string of piece chars and numbers for empy spaces
   // example: "rnbqk1nr"
 

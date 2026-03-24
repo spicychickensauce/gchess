@@ -2,11 +2,11 @@ name = "gchess"
 version = "0.1.6"
 description = "A Gleam project"
 licences = ["MIT"]
-gleam = ">= 0.32.0"
+gleam = ">= 1.11.0"
 repository = { type = "github", user = "byusti", repo = "gchess" }
 
 [dependencies]
 gleam_stdlib = "~> 0.34"
 
 [dev-dependencies]
-gleeunit = "~> 1.0.2"
+gleeunit = "~> 1.9"

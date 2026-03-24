@@ -15,7 +15,7 @@ import knight_target
 import move.{type Move, type MoveWithCapture}
 import move_san
 import pgn
-import piece.{type Piece, Bishop, King, Knight, Pawn, Queen, Rook}
+import piece.{Bishop, King, Knight, Pawn, Queen, Rook}
 import position.{
   type Position, A, B, C, D, E, Eight, F, Five, Four, G, H, One, Seven, Six,
   Three, Two,
@@ -464,21 +464,21 @@ fn is_move_legal(game: Game, move: Move) -> Result(Bool, _) {
   }
 }
 
-// Apply move to the board. This function is not concerned with whether 
+// Apply move to the board. This function is not concerned with whether
 // the move is possible, it just attempts to apply a move to the board.
 // This function is used for check detection and speeding up move application
-// during tests. 
+// during tests.
 pub fn apply_move_raw(game: Game, move: Move) -> Result(Game, _) {
   case move {
     move.Normal(from: from, to: to, promotion: promo_piece) -> {
-      use moving_piece <- result.try(case
-        board.get_piece_at_position(game.board, from)
-      {
-        Some(piece) -> Ok(piece)
-        None -> {
-          Error("No piece at from position")
-        }
-      })
+      use moving_piece <- result.try(
+        case board.get_piece_at_position(game.board, from) {
+          Some(piece) -> Ok(piece)
+          None -> {
+            Error("No piece at from position")
+          }
+        },
+      )
       let captured_piece = piece_at_position(game, to)
 
       use new_board <- result.try(board.remove_piece_at_position(
@@ -795,17 +795,19 @@ pub fn apply_move_raw(game: Game, move: Move) -> Result(Game, _) {
         _ -> Error("Invalid en passant move")
       })
 
-      use new_board <- result.try(case
-        board.remove_piece_at_position(
-          new_game_state.board,
-          captured_pawn_square,
-        )
-      {
-        Ok(new_board) -> Ok(new_board)
-        Error(_) -> {
-          Error("Invalid en passant move")
-        }
-      })
+      use new_board <- result.try(
+        case
+          board.remove_piece_at_position(
+            new_game_state.board,
+            captured_pawn_square,
+          )
+        {
+          Ok(new_board) -> Ok(new_board)
+          Error(_) -> {
+            Error("Invalid en passant move")
+          }
+        },
+      )
 
       let new_ply = new_game_state.ply + 1
 
@@ -961,7 +963,7 @@ fn is_king_in_check(game: Game, color: Color) -> Result(Bool, _) {
       }),
     )
   })
-  Ok(list.length(enemy_move_list) > 0)
+  Ok(enemy_move_list != [])
 }
 
 fn generate_pseudo_legal_move_list(
@@ -3219,7 +3221,6 @@ fn generate_pawn_capture_move_list(
       generate_pawn_attack_set(game.board.black_pawns_bitboard, color)
     }
   }
-  generate_pawn_attack_set(game.board.white_pawns_bitboard, color)
   let list_of_enemy_piece_bitboards = case color {
     White -> {
       [
@@ -3832,12 +3833,12 @@ pub fn apply_move(game: Game, move: Move) -> Result(Game, _) {
         True, True | False, True -> {
           let new_status = case move {
             move.Normal(from: from, to: to, promotion: _) -> {
-              use moving_piece <- result.try(case
-                board.get_piece_at_position(game.board, from)
-              {
-                Some(piece) -> Ok(piece)
-                None -> Error("no piece at from position")
-              })
+              use moving_piece <- result.try(
+                case board.get_piece_at_position(game.board, from) {
+                  Some(piece) -> Ok(piece)
+                  None -> Error("no piece at from position")
+                },
+              )
 
               case game.status {
                 None -> Ok(None)
@@ -4048,7 +4049,7 @@ pub fn apply_move_san_string(game: Game, move: String) -> Result(Game, String) {
                         }
                       }
                       _ -> {
-                        // this should be unreachable 
+                        // this should be unreachable
                         False
                       }
                     }
@@ -4226,18 +4227,20 @@ pub fn apply_move_uci(game: Game, move: String) -> Result(Game, _) {
                             "n" -> Some(Knight)
                             _ -> None
                           }
-                          use piece <- result.try(case
-                            piece_at_position(
-                              game,
-                              position.Position(
-                                file: from_file,
-                                rank: from_rank,
-                              ),
-                            )
-                          {
-                            Some(piece) -> Ok(piece)
-                            None -> Error("No piece at origin")
-                          })
+                          use piece <- result.try(
+                            case
+                              piece_at_position(
+                                game,
+                                position.Position(
+                                  file: from_file,
+                                  rank: from_rank,
+                                ),
+                              )
+                            {
+                              Some(piece) -> Ok(piece)
+                              None -> Error("No piece at origin")
+                            },
+                          )
 
                           let maybe_enemy_piece =
                             piece_at_position(
@@ -4374,7 +4377,7 @@ pub fn apply_move_uci(game: Game, move: String) -> Result(Game, _) {
                             result.partition([from_file_result, to_file_result])
                           let #(_, rank_errors) =
                             result.partition([from_rank_result, to_rank_result])
-                          let errors = list.concat([file_errors, rank_errors])
+                          let errors = list.append(file_errors, rank_errors)
                           Error(string.join(errors, ", "))
                         }
                       }
@@ -4643,18 +4646,20 @@ pub fn undo_move(game: Game) -> Result(Game, _) {
                 _ -> panic as "Undoing Castle Move: Invalid castle move"
               }
 
-              use new_board <- result.try(case
-                board.remove_piece_at_position(
-                  game.board,
-                  rook_castling_target_square,
-                )
-              {
-                Ok(board) -> Ok(board)
-                Error(_) ->
-                  Error(
-                    "Undoing Castle Move: Could not remove piece at position",
+              use new_board <- result.try(
+                case
+                  board.remove_piece_at_position(
+                    game.board,
+                    rook_castling_target_square,
                   )
-              })
+                {
+                  Ok(board) -> Ok(board)
+                  Error(_) ->
+                    Error(
+                      "Undoing Castle Move: Could not remove piece at position",
+                    )
+                },
+              )
               let new_game_state = Game(..game, board: new_board)
 
               use new_board <- result.try(board.remove_piece_at_position(
