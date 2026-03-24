@@ -6,7 +6,7 @@ gleam = ">= 1.11.0"
 repository = { type = "github", user = "byusti", repo = "gchess" }
 
 [dependencies]
-gleam_stdlib = "~> 0.34"
+gleam_stdlib = "~> 0.70"
 
 [dev-dependencies]
 gleeunit = "~> 1.9"
